@@ -210,7 +210,5 @@ MIT License
 ## 👨‍💻 作者
 
 PDF转换器项目团队
-
----
-
+[Michael-sms](https://github.com/Michael-sms),有任何建议可题issue或用邮箱联系我。
 **享受便捷的文档转换体验！** 🎉
