@@ -119,8 +119,9 @@ class PDFToExcelConverter(BaseConverter):
         """将PDF转换为Excel"""
         try:
             import tabula
+            import pandas as pd
         except ImportError:
-            raise ImportError("需要安装tabula-py库: pip install tabula-py")
+            raise ImportError("需要安装tabula-py和pandas库: pip install tabula-py pandas openpyxl")
         
         self.validate_file(input_file, ['.pdf'])
         output_file = self.get_output_path(input_file, '.xlsx', output_file)
@@ -141,10 +142,3 @@ class PDFToExcelConverter(BaseConverter):
             return output_file
         except Exception as e:
             raise RuntimeError(f"PDF转Excel失败: {str(e)}\n提示: 需要安装Java运行环境")
-    
-    def __init__(self):
-        try:
-            import pandas as pd
-            globals()['pd'] = pd
-        except ImportError:
-            raise ImportError("需要安装pandas库: pip install pandas openpyxl")
