@@ -30,8 +30,8 @@ instance/
 .webassets-cache
 
 # 上传和输出文件夹
-uploads/
-outputs/
+backend/uploads/
+backend/outputs/
 temp/
 
 # IDE
