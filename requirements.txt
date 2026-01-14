@@ -1,0 +1,23 @@
+# PDF转换器 - 依赖包列表
+
+# Web框架
+flask==3.0.0
+werkzeug==3.0.1
+
+# 核心转换库
+docx2pdf==0.1.8          # Word转PDF
+pdf2docx==0.5.6          # PDF转Word
+Pillow==10.1.0           # 图片处理
+pdfkit==1.0.0            # HTML转PDF (需要安装 wkhtmltopdf)
+pdf2image==1.16.3        # PDF转图片 (需要安装 poppler)
+python-pptx==0.6.23      # PPT处理
+tabula-py==2.9.0         # PDF转Excel (需要Java)
+pandas==2.1.4            # 数据处理
+openpyxl==3.1.2          # Excel处理
+
+# Windows Office自动化 (仅Windows)
+comtypes==1.4.1          # PPT和Excel转PDF (需要安装Microsoft Office)
+
+# 可选：更好的PDF处理
+PyPDF2==3.0.1            # PDF操作
+reportlab==4.0.7         # PDF生成

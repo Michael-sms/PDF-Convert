@@ -1,3 +1,5 @@
+import subprocess
+
 from docx2pdf import convert
 import argparse
 import os
@@ -125,6 +127,23 @@ class WordToPDFConverter:
                     output_files.append(output_file)
 
         return output_files
+    '''
+    def convert_to_word(self, input_file):
+        """转换单个文件为Word"""
+        if not input_file.lower().endswith('.pdf'):
+            messagebox.showerror("错误", "文件格式不正确，请选择.pdf文件")
+            return None
+
+        file_name = os.path.splitext(input_file)[0]
+        output_file = file_name + ".docx"
+
+        try:
+            subprocess.run(['libreoffice', '--headless', '--convert-to', 'docx', input_file, '--outdir', os.path.dirname(output_file)], check=True)
+            return output_file
+        except Exception as e:
+            messagebox.showerror("错误", f"转换失败: {str(e)}")
+            return None
+    '''
 
 
 def command_line_interface():
