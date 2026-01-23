@@ -9,7 +9,11 @@ class WordToPDFConverter(BaseConverter):
     
     def convert(self, input_file: str, output_file: Optional[str] = None) -> str:
         """将Word文档转换为PDF"""
+        import pythoncom
         from docx2pdf import convert
+        
+        # 在多线程环境(如Flask)中必须初始化COM
+        pythoncom.CoInitialize()
         
         self.validate_file(input_file, ['.docx', '.doc'])
         output_file = self.get_output_path(input_file, '.pdf', output_file)
@@ -19,6 +23,9 @@ class WordToPDFConverter(BaseConverter):
             return output_file
         except Exception as e:
             raise RuntimeError(f"Word转PDF失败: {str(e)}")
+        finally:
+            # 释放COM资源
+            pythoncom.CoUninitialize()
 
 
 class PPTToPDFConverter(BaseConverter):
@@ -26,10 +33,14 @@ class PPTToPDFConverter(BaseConverter):
     
     def convert(self, input_file: str, output_file: Optional[str] = None) -> str:
         """将PowerPoint转换为PDF"""
+        import pythoncom
         try:
             from comtypes import client
         except ImportError:
             raise ImportError("需要安装comtypes库: pip install comtypes")
+        
+        # 初始化COM
+        pythoncom.CoInitialize()
         
         self.validate_file(input_file, ['.pptx', '.ppt'])
         output_file = self.get_output_path(input_file, '.pdf', output_file)
@@ -50,6 +61,8 @@ class PPTToPDFConverter(BaseConverter):
             return output_file
         except Exception as e:
             raise RuntimeError(f"PPT转PDF失败: {str(e)}")
+        finally:
+            pythoncom.CoUninitialize()
 
 
 class ExcelToPDFConverter(BaseConverter):

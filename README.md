@@ -2,6 +2,18 @@
 
 一个功能强大的PDF转换工具，支持多种文档格式互转，提供命令行界面和现代化的Web界面。
 
+## 📸 界面展示
+
+### 主界面
+![界面展示](docx/images/界面展示.png)
+
+现代科技风格的Web界面，采用渐变背景和玻璃拟态设计，支持拖拽上传。
+
+### 转换成功
+![转换成功展示](docx/images/转换成功展示.png)
+
+转换完成后可直接下载文件，界面提供清晰的状态反馈。
+
 ## ✨ 功能特性
 
 ### 📄 转为PDF
@@ -28,7 +40,7 @@
 
 1. **克隆或下载项目**
 ```bash
-git clone <repository-url>
+git clone https://github.com/Michael-sms/PDF-Convert.git
 cd Convert2PDF
 ```
 
@@ -169,6 +181,15 @@ Convert2PDF/
 
 ## 🔧 常见问题
 
+### Q: Word/PPT转PDF时遇到500错误？
+**A:** 这通常是COM组件在多线程环境下的初始化问题。请确保：
+1. 已安装 Microsoft Office（不支持WPS）
+2. 首次运行前手动打开一次Word/PowerPoint，关闭所有欢迎弹窗
+3. 重启Flask服务使最新的COM初始化代码生效
+4. 如果问题持续，运行 `python check_word_convert.py` 进行诊断
+
+详细排查步骤请参考 [故障排除指南](TROUBLESHOOTING.md)。
+
 ### Q: PPT转PDF或Excel转PDF失败？
 **A:** 确保已安装Microsoft Office，并且comtypes库已正确安装。
 
@@ -185,6 +206,16 @@ Convert2PDF/
 **A:** 大文件建议使用命令行界面，或增加Flask超时时间。
 
 ## 📝 更新日志
+
+### v2.0.1 (2026-01-23)
+- 🐛 修复Flask多线程环境下Word/PPT转PDF的COM组件初始化错误
+- 🔧 添加 `pythoncom.CoInitialize()` 和 `CoUninitialize()` 确保COM线程安全
+- 🎨 优化Web界面为现代科技风格，采用动态渐变背景
+- 🎨 实现玻璃拟态(Glass Morphism)设计风格
+- ✨ 添加浮动动画效果和按钮光泽特效
+- 📚 新增故障排除指南 `TROUBLESHOOTING.md`
+- 🛠️ 添加诊断工具 `check_word_convert.py`
+- 📖 改进错误日志输出，便于调试
 
 ### v2.0.0 (2026-01-14)
 - ✨ 全面重构代码架构

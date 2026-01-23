@@ -160,6 +160,8 @@ def convert_file():
             })
         
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             return jsonify({'error': f'转换失败: {str(e)}'}), 500
         
         finally:
