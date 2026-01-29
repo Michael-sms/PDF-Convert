@@ -7,7 +7,12 @@
 ### 主界面
 ![界面展示](docx/images/界面展示.png)
 
-现代科技风格的Web界面，采用渐变背景和玻璃拟态设计，支持拖拽上传。
+**赛博科技风格 (Cyberpunk Tech Style)** 的Web界面：
+- 🌌 深空网格背景 + 全息扫描线效果
+- ⚡ 电光青霓虹主色调
+- 🪟 暗黑玻璃拟态 (Dark Glass Morphism)
+- ✨ 浮动光斑动画 + 按钮光泽特效
+- 📱 支持拖拽上传，响应式设计
 
 ### 转换成功
 ![转换成功展示](docx/images/转换成功展示.png)
@@ -157,8 +162,9 @@ Convert2PDF/
 
 ### 前端
 - **原生JavaScript** - 交互逻辑
-- **现代CSS** - 渐变、动画、响应式设计
+- **现代CSS3** - 赛博科技风格、渐变、动画、Glass Morphism
 - **HTML5** - 拖拽上传、文件API
+- **设计风格** - Cyberpunk/Sci-Fi Tech 深色主题
 
 ## ⚠️ 注意事项
 
@@ -181,17 +187,18 @@ Convert2PDF/
 
 ## 🔧 常见问题
 
-### Q: Word/PPT转PDF时遇到500错误？
-**A:** 这通常是COM组件在多线程环境下的初始化问题。请确保：
-1. 已安装 Microsoft Office（不支持WPS）
-2. 首次运行前手动打开一次Word/PowerPoint，关闭所有欢迎弹窗
-3. 重启Flask服务使最新的COM初始化代码生效
-4. 如果问题持续，运行 `python check_word_convert.py` 进行诊断
+### Q: Word/PPT/Excel转PDF时遇到500错误或"Failed to fetch"？
+**A:** v2.0.2已采用子进程隔离技术大幅改善此问题。请确保：
+1. 已安装 **Microsoft Office**（不支持WPS）
+2. 首次运行前**手动打开一次**Word/PowerPoint/Excel，关闭所有欢迎弹窗和激活提示
+3. 重启Flask服务：`python backend/app.py`
+4. 查看终端输出的 `[Excel转PDF]` 等日志获取详细错误信息
+5. 如果问题持续，运行 `python check_word_convert.py` 进行诊断
 
 详细排查步骤请参考 [故障排除指南](TROUBLESHOOTING.md)。
 
-### Q: PPT转PDF或Excel转PDF失败？
-**A:** 确保已安装Microsoft Office，并且comtypes库已正确安装。
+### Q: 转换超时（2分钟）？
+**A:** 通常是Office应用弹出了对话框（如激活提示、宏安全警告等）。请手动打开对应的Office程序，确认没有任何弹窗后关闭，再重试转换。
 
 ### Q: HTML转PDF失败？
 **A:** 需要安装wkhtmltopdf并添加到PATH环境变量。
@@ -206,6 +213,15 @@ Convert2PDF/
 **A:** 大文件建议使用命令行界面，或增加Flask超时时间。
 
 ## 📝 更新日志
+
+### v2.0.2 (2026-01-29)
+- 🎨 **全新赛博科技风格UI** - 深空网格背景、电光青霓虹配色、暗黑玻璃拟态
+- ⚡ 添加全息扫描线、浮动光斑动画、按钮霓虹辉光效果
+- 🛡️ **子进程隔离技术** - Word/PPT/Excel转PDF使用独立子进程执行
+- 🐛 修复COM组件崩溃导致Flask主进程终止的问题
+- ⏱️ 添加转换超时保护（2分钟），防止弹窗阻塞
+- 📊 增强错误日志输出，显示详细的转换步骤信息
+- 🔧 优化Excel转PDF的COM调用，添加DisplayAlerts=False
 
 ### v2.0.1 (2026-01-23)
 - 🐛 修复Flask多线程环境下Word/PPT转PDF的COM组件初始化错误

@@ -12,7 +12,7 @@ name = "appscript"
 version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "lxml" },
+    { name = "lxml", marker = "sys_platform == 'darwin'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ca/52/2fa70edfd98f0058219ecc2e365a3ba7aabd42db14ff9d7f44bbdcc5400d/appscript-1.4.0.tar.gz", hash = "sha256:b2c6fc770bf822ea45529c7084bc0ee340e67ab260016b01d28e0449ec8723be", size = 295279, upload-time = "2025-10-08T07:56:39.126Z" }
 wheels = [
@@ -82,6 +82,7 @@ dependencies = [
     { name = "reportlab" },
     { name = "tabula-py" },
     { name = "werkzeug" },
+    { name = "wkhtmltopdf" },
 ]
 
 [package.metadata]
@@ -100,6 +101,7 @@ requires-dist = [
     { name = "reportlab", specifier = "==4.0.7" },
     { name = "tabula-py", specifier = "==2.9.0" },
     { name = "werkzeug", specifier = "==3.0.1" },
+    { name = "wkhtmltopdf", specifier = ">=0.2" },
 ]
 
 [[package]]
@@ -660,6 +662,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/0d/cc/ff1904eb5eb4b455e
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c3/fc/254c3e9b5feb89ff5b9076a23218dafbc99c96ac5941e900b71206e6313b/werkzeug-3.0.1-py3-none-any.whl", hash = "sha256:90a285dc0e42ad56b34e696398b8122ee4c681833fb35b8334a095d82c56da10", size = 226669, upload-time = "2023-10-24T20:57:47.326Z" },
 ]
+
+[[package]]
+name = "wkhtmltopdf"
+version = "0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/33/60a1f2d8a784376ce4e56599ec26997dcee21fcc6340179fc7fac94d4aa4/wkhtmltopdf-0.2.tar.gz", hash = "sha256:530fffb5d1faf4f4cd5248c14fd1b4b7fe311541d0660dc2c2272c32b3c72211", size = 9725, upload-time = "2011-07-21T13:05:56.771Z" }
 
 [[package]]
 name = "xlsxwriter"

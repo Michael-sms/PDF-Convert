@@ -9,23 +9,49 @@ class WordToPDFConverter(BaseConverter):
     
     def convert(self, input_file: str, output_file: Optional[str] = None) -> str:
         """将Word文档转换为PDF"""
-        import pythoncom
-        from docx2pdf import convert
-        
-        # 在多线程环境(如Flask)中必须初始化COM
-        pythoncom.CoInitialize()
+        import subprocess
+        import sys
         
         self.validate_file(input_file, ['.docx', '.doc'])
         output_file = self.get_output_path(input_file, '.pdf', output_file)
         
+        abs_input = os.path.abspath(input_file)
+        abs_output = os.path.abspath(output_file)
+        
+        # 使用子进程执行，防止COM崩溃影响主进程
+        script = f'''
+import pythoncom
+import sys
+pythoncom.CoInitialize()
+try:
+    from docx2pdf import convert
+    convert(r"{abs_input}", r"{abs_output}")
+    print("SUCCESS")
+except Exception as e:
+    print(f"ERROR: {{e}}", file=sys.stderr)
+    sys.exit(1)
+finally:
+    pythoncom.CoUninitialize()
+'''
+        
         try:
-            convert(input_file, output_file)
+            result = subprocess.run(
+                [sys.executable, '-c', script],
+                capture_output=True,
+                text=True,
+                timeout=120  # 2分钟超时
+            )
+            
+            if result.returncode != 0 or "SUCCESS" not in result.stdout:
+                error_msg = result.stderr.strip() if result.stderr else "未知错误"
+                raise RuntimeError(f"Word转PDF失败: {error_msg}")
+            
             return output_file
+            
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("Word转PDF超时，可能是Word弹出了对话框。请手动打开Word确认无弹窗后重试。")
         except Exception as e:
             raise RuntimeError(f"Word转PDF失败: {str(e)}")
-        finally:
-            # 释放COM资源
-            pythoncom.CoUninitialize()
 
 
 class PPTToPDFConverter(BaseConverter):
@@ -33,36 +59,55 @@ class PPTToPDFConverter(BaseConverter):
     
     def convert(self, input_file: str, output_file: Optional[str] = None) -> str:
         """将PowerPoint转换为PDF"""
-        import pythoncom
-        try:
-            from comtypes import client
-        except ImportError:
-            raise ImportError("需要安装comtypes库: pip install comtypes")
-        
-        # 初始化COM
-        pythoncom.CoInitialize()
+        import subprocess
+        import sys
         
         self.validate_file(input_file, ['.pptx', '.ppt'])
         output_file = self.get_output_path(input_file, '.pdf', output_file)
         
+        abs_input = os.path.abspath(input_file)
+        abs_output = os.path.abspath(output_file)
+        
+        # 使用子进程执行，防止COM崩溃影响主进程
+        script = f'''
+import pythoncom
+import sys
+pythoncom.CoInitialize()
+try:
+    from comtypes import client
+    powerpoint = client.CreateObject("Powerpoint.Application")
+    powerpoint.Visible = 1
+    
+    deck = powerpoint.Presentations.Open(r"{abs_input}", WithWindow=False)
+    deck.SaveAs(r"{abs_output}", 32)
+    deck.Close()
+    powerpoint.Quit()
+    print("SUCCESS")
+except Exception as e:
+    print(f"ERROR: {{e}}", file=sys.stderr)
+    sys.exit(1)
+finally:
+    pythoncom.CoUninitialize()
+'''
+        
         try:
-            # 使用PowerPoint COM接口
-            powerpoint = client.CreateObject("Powerpoint.Application")
-            powerpoint.Visible = 1
+            result = subprocess.run(
+                [sys.executable, '-c', script],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
             
-            abs_input = os.path.abspath(input_file)
-            abs_output = os.path.abspath(output_file)
-            
-            deck = powerpoint.Presentations.Open(abs_input, WithWindow=False)
-            deck.SaveAs(abs_output, 32)  # 32 = PDF格式
-            deck.Close()
-            powerpoint.Quit()
+            if result.returncode != 0 or "SUCCESS" not in result.stdout:
+                error_msg = result.stderr.strip() if result.stderr else "未知错误"
+                raise RuntimeError(f"PPT转PDF失败: {error_msg}")
             
             return output_file
+            
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("PPT转PDF超时，可能是PowerPoint弹出了对话框。请手动打开PowerPoint确认无弹窗后重试。")
         except Exception as e:
             raise RuntimeError(f"PPT转PDF失败: {str(e)}")
-        finally:
-            pythoncom.CoUninitialize()
 
 
 class ExcelToPDFConverter(BaseConverter):
@@ -70,29 +115,83 @@ class ExcelToPDFConverter(BaseConverter):
     
     def convert(self, input_file: str, output_file: Optional[str] = None) -> str:
         """将Excel转换为PDF"""
-        try:
-            from comtypes import client
-        except ImportError:
-            raise ImportError("需要安装comtypes库: pip install comtypes")
+        import subprocess
+        import sys
         
         self.validate_file(input_file, ['.xlsx', '.xls'])
         output_file = self.get_output_path(input_file, '.pdf', output_file)
         
-        try:
-            excel = client.CreateObject("Excel.Application")
-            excel.Visible = 0
-            
-            abs_input = os.path.abspath(input_file)
-            abs_output = os.path.abspath(output_file)
-            
-            wb = excel.Workbooks.Open(abs_input)
-            wb.ExportAsFixedFormat(0, abs_output)  # 0 = PDF格式
-            wb.Close()
+        abs_input = os.path.abspath(input_file)
+        abs_output = os.path.abspath(output_file)
+        
+        # 使用子进程来执行转换，避免COM问题导致主进程崩溃
+        script = f'''
+import pythoncom
+import sys
+import traceback
+
+pythoncom.CoInitialize()
+excel = None
+wb = None
+try:
+    from comtypes import client
+    print("正在启动Excel...", file=sys.stderr)
+    excel = client.CreateObject("Excel.Application")
+    excel.Visible = False
+    excel.DisplayAlerts = False
+    
+    print("正在打开文件...", file=sys.stderr)
+    wb = excel.Workbooks.Open(r"{abs_input}", ReadOnly=True)
+    
+    print("正在导出PDF...", file=sys.stderr)
+    wb.ExportAsFixedFormat(0, r"{abs_output}")
+    
+    print("SUCCESS")
+except Exception as e:
+    print(f"FAILED: {{type(e).__name__}}: {{e}}", file=sys.stderr)
+    traceback.print_exc(file=sys.stderr)
+    sys.exit(1)
+finally:
+    try:
+        if wb:
+            wb.Close(SaveChanges=False)
+        if excel:
             excel.Quit()
+    except:
+        pass
+    pythoncom.CoUninitialize()
+'''
+        
+        try:
+            print(f"[Excel转PDF] 开始转换: {abs_input}")
+            result = subprocess.run(
+                [sys.executable, '-c', script],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
             
+            print(f"[Excel转PDF] 返回码: {result.returncode}")
+            if result.stdout:
+                print(f"[Excel转PDF] stdout: {result.stdout}")
+            if result.stderr:
+                print(f"[Excel转PDF] stderr: {result.stderr}")
+            
+            if result.returncode != 0 or "SUCCESS" not in result.stdout:
+                error_msg = result.stderr.strip() if result.stderr else "子进程执行失败"
+                raise RuntimeError(error_msg)
+            
+            if not os.path.exists(abs_output):
+                raise RuntimeError("转换完成但输出文件不存在")
+                
             return output_file
+            
+        except subprocess.TimeoutExpired:
+            raise RuntimeError("Excel转PDF超时(2分钟)，请检查Excel是否弹出了对话框")
+        except RuntimeError:
+            raise
         except Exception as e:
-            raise RuntimeError(f"Excel转PDF失败: {str(e)}")
+            raise RuntimeError(f"执行出错: {str(e)}")
 
 
 class ImageToPDFConverter(BaseConverter):
